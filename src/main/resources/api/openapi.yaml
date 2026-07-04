@@ -1,0 +1,504 @@
+openapi: 3.1.0
+info:
+  title: Movie Booking Platform API
+  description: API definitions for Book My Show service
+  version: 1.0.0
+servers:
+  - url: https://localhost:8081/v1
+    description: Dev server
+tags:
+  - name: Movie
+    description: Endpoints related to movies
+  - name: Theatre
+    description: Endpoints related to theaters
+  - name: Booking
+    description: Endpoints related to bookings
+  - name: User
+    description: Endpoints related to user management
+  - name: Payment
+    description: Endpoints related to payment processing
+
+paths: 
+  /users/{userId}:
+    get:
+      tags:
+        - User
+      summary: Get user details
+      description: Retrieve detailed information about a specific user by their ID.
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+  /users:
+    post:
+      tags:
+        - User
+      summary: Create a new user
+      description: Register a new user in the system.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+  /movies/{movieName}:
+    get:
+      tags:
+        - Movie
+      summary: Get a movie by name
+      description: Retrieve detailed information about a specific movie by its name.
+      operationId: getMovieByName
+      parameters:
+        - name: movieName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieResponse'
+  /movies/{movieId}/theaters:
+    get:
+      tags:
+        - Movie
+      summary: Get theatres showing a specific movie
+      description: Retrieve a list of theaters that are currently showing a specific movie by its ID. 
+      operationId: getTheatersByMovieId
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TheatreResponse'
+  /theatres/{theatreName}:
+    get:
+      tags:
+        - Theatre
+      summary: Get a theatre by name
+      description: Retrieve detailed information about a specific theatre by its name.
+      operationId: getTheatreByName
+      parameters:
+        - name: theatreName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Theatre details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TheatreResponse'
+  /theatres/{movieId}:
+    get:
+      tags:
+        - Theatre
+      summary: Get theatres showing a specific movie
+      description: Retrieve a list of theaters that are currently showing a specific movie by its ID. 
+      operationId: getTheatresByMovieId
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Theatre details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TheatreResponse'
+  /shows:
+    post:
+      tags:
+        - Show
+      summary: Create a new show
+      description: Schedule a new show for a specific movie in a specific theatre.
+      operationId: createShow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShowRequest'
+      responses:
+        '201':
+          description: Show created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowResponse'
+  /bookings:
+    post:
+      tags:
+        - Booking
+      summary: Create a new booking
+      description: Book tickets for a specific show.
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+  /bookings/{bookingId}:
+    get:
+      tags:
+        - Booking
+      summary: Get booking details
+      description: Retrieve detailed information about a specific booking by its ID.
+      operationId: getBookingById
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+  /payments:
+    post:
+      tags:
+        - Payment
+      summary: Process a payment
+      description: Process a payment for a specific booking.
+      operationId: processPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+components:
+  schemas: 
+    BookingRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User ID for the booking
+        showId:
+          type: string
+          description: Show ID for the booking
+        numberOfSeats:
+          type: integer
+          description: Number of seats to book
+      required:
+        - userId
+        - showId
+        - numberOfSeats
+    PaymentRequest:
+      type: object
+      properties:
+        bookingId:
+          type: string
+          description: Booking ID associated with the payment
+        amount:
+          type: number
+          format: float
+          description: Amount to be paid
+        currency:
+          type: string
+          description: Currency for the payment
+        paymentMethod:
+          type: string
+          description: Payment method used for the transaction
+        paymentDetails:
+          type: object
+          description: Additional payment details
+          properties:
+            transactionReference:
+              type: string
+              description: External transaction reference for the payment
+      required:
+        - bookingId
+        - amount
+        - currency
+        - paymentMethod
+    PaymentResponse:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          description: Unique identifier for the payment
+        bookingId:
+          type: string
+          description: Booking ID associated with the payment
+        amount:
+          type: number
+          format: float
+          description: Amount processed
+        currency:
+          type: string
+          description: Currency for the payment
+        status:
+          type: string
+          description: Payment status
+        transactionReference:
+          type: string
+          description: External transaction reference for the payment
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when the payment was processed
+    ShowRequest:
+      type: object
+      properties:
+        movieId:
+          type: string
+          description: Movie ID for the show
+        theatreId:
+          type: string
+          description: Theatre ID for the show
+        screenId:
+          type: string
+          description: Screen ID for the show
+        startTime:
+          type: string
+          format: date-time
+          description: Start time of the show
+        endTime:
+          type: string
+          format: date-time
+          description: End time of the show
+      required:
+        - movieId
+        - theatreId
+        - screenId
+        - startTime
+        - endTime
+    UserRequest:
+      type: object
+      properties:
+        firstName :
+          type: string
+          description: Name of the user
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        phone:
+          type: string
+          description: Phone number of the user
+      required:
+        - name
+        - email
+        - phone
+    BookingResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Booking'
+          description: Unique identifier for the booking
+        notifications:
+           type: array
+           items:
+             $ref: '#/components/schemas/Notification'
+           description: List of notifications for the user
+    MovieResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+            description: Unique identifier for the user
+        notifications:
+           type: array
+           items:
+             $ref: '#/components/schemas/Notification'
+           description: List of notifications for the user
+    ShowResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Show'
+          description: Unique identifier for the show
+        notifications:
+           type: array
+           items:
+             $ref: '#/components/schemas/Notification'
+           description: List of notifications for the user
+    TheatreResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Theatre'
+            description: Unique identifier for the user
+        notifications:
+           type: array
+           items:
+             $ref: '#/components/schemas/Notification'
+           description: List of notifications for the user
+    UserResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+          description: Unique identifier for the user
+        notifications:
+           type: array
+           items:
+             $ref: '#/components/schemas/Notification'
+           description: List of notifications for the user
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the booking
+        userId:
+          type: string
+          description: User ID for the booking
+        showId:
+          type: string
+          description: Show ID for the booking
+        numberOfSeats:
+          type: integer
+          description: Number of seats booked
+        bookingTime:
+          type: string
+          format: date-time
+          description: Time when the booking was made
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the movie
+        title:
+          type: string
+          description: Title of the movie
+        genre:
+          type: string
+          description: Genre of the movie
+        duration:
+          type: integer
+          description: Duration of the movie in minutes
+        releaseDate:
+          type: string
+          format: date
+          description: Release date of the movie
+    Notification:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of notification (e.g., info, alert)
+        message:
+          type: string
+          description: Notification message
+        code:
+          type: string
+          description: Notification code for categorization
+    Show:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the show
+        movieId:
+          type: string
+          description: Movie ID for this show
+        startTime:
+          type: string
+          format: date-time
+          description: Start time of the show
+        endTime:
+          type: string
+          format: date-time
+          description: End time of the show
+        availableSeats:
+          type: integer
+          description: Number of available seats
+    Theatre:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the theatre
+        name:
+          type: string
+          description: Name of the theatre
+        location:
+          type: string
+          description: Location of the theatre
+        shows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShowResponse'
+          description: Total number of seats in the theatre
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+        name:
+          type: string
+          description: Name of the user
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        phone:
+          type: string
+          description: Phone number of the user
+  securitySchemes: {}
+security: []

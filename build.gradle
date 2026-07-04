@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.16'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.14.0'
 }
 
 group = 'io.github.ranjitsoni'
@@ -35,4 +36,44 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+/*
+|--------------------------------------------------------------------------
+| OpenAPI Generator
+|--------------------------------------------------------------------------
+*/
+
+openApiGenerate {
+
+    generatorName = "spring"
+
+    inputSpec = file("src/main/resources/api/openapi.yaml").toURI().toString()
+
+    outputDir = "$buildDir/generated"
+
+    apiPackage = "io.github.ranjitsoni.moviebooking.api"
+
+    modelPackage = "io.github.ranjitsoni.moviebooking.dto"
+
+    invokerPackage = "io.github.ranjitsoni.moviebooking"
+
+    configOptions = [
+            interfaceOnly      : "true",
+            useSpringBoot3     : "true",
+            useTags            : "true",
+            useBeanValidation  : "true",
+            useResponseEntity  : "true",
+            delegatePattern    : "false",
+            dateLibrary        : "java8"
+    ]
+}
+
+
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated/src/main/java"
+        }
+    }
 }
